@@ -1,12 +1,133 @@
-import React from 'react';
-import { Bed, Users, CalendarPlus, Check, Sparkles, Shield, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bed, Users, CalendarPlus, Check, Sparkles, Shield, ArrowRight, Edit2, Plus, X, AlertCircle, DollarSign } from 'lucide-react';
 
 export default function RoomTypesShowcase({ 
   roomTypes, 
   rooms, 
   onBookRoomType,
-  onViewRoomsOfType 
+  onViewRoomsOfType,
+  onRoomTypeUpdated,
+  userRole 
 }) {
+  const [editingType, setEditingType] = useState(null);
+  const [isAddTypeModalOpen, setIsAddTypeModalOpen] = useState(false);
+
+  const [formData, setFormData] = useState({
+    id: '',
+    name: '',
+    description: '',
+    base_price: 500000,
+    capacity: 2,
+    amenitiesStr: '',
+    image: ''
+  });
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Open Edit Modal
+  const handleOpenEdit = (rt) => {
+    setEditingType(rt);
+    setFormData({
+      id: rt.id,
+      name: rt.name,
+      description: rt.description || '',
+      base_price: rt.base_price,
+      capacity: rt.capacity || 2,
+      amenitiesStr: (rt.amenities || []).join(', '),
+      image: rt.image || ''
+    });
+    setErrorMsg('');
+  };
+
+  // Open Add Modal
+  const handleOpenAdd = () => {
+    setIsAddTypeModalOpen(true);
+    setFormData({
+      id: '',
+      name: '',
+      description: '',
+      base_price: 600000,
+      capacity: 2,
+      amenitiesStr: 'WiFi tốc độ cao, Smart TV, Điều hòa, Bình đun siêu tốc',
+      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'
+    });
+    setErrorMsg('');
+  };
+
+  // Save Edit
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setErrorMsg('');
+
+    try {
+      const amenitiesArr = formData.amenitiesStr.split(',').map(s => s.trim()).filter(Boolean);
+      const res = await fetch(`/api/rooms/types/${editingType.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          base_price: parseInt(formData.base_price, 10),
+          capacity: parseInt(formData.capacity, 10),
+          amenities: amenitiesArr,
+          image: formData.image
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Cập nhật hạng phòng thất bại');
+
+      alert('Đã cập nhật hạng phòng thành công!');
+      setEditingType(null);
+      if (onRoomTypeUpdated) onRoomTypeUpdated();
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save Add
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
+    if (!formData.id || !formData.name || !formData.base_price) {
+      setErrorMsg('Vui lòng điền đủ Mã hạng phòng, Tên và Giá');
+      return;
+    }
+
+    setIsSaving(true);
+    setErrorMsg('');
+
+    try {
+      const amenitiesArr = formData.amenitiesStr.split(',').map(s => s.trim()).filter(Boolean);
+      const res = await fetch('/api/rooms/types', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: formData.id,
+          name: formData.name,
+          description: formData.description,
+          base_price: parseInt(formData.base_price, 10),
+          capacity: parseInt(formData.capacity, 10),
+          amenities: amenitiesArr,
+          image: formData.image
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Thêm hạng phòng thất bại');
+
+      alert('Đã thêm hạng phòng mới thành công!');
+      setIsAddTypeModalOpen(false);
+      if (onRoomTypeUpdated) onRoomTypeUpdated();
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header Banner */}
@@ -25,18 +146,31 @@ export default function RoomTypesShowcase({
                 <Bed size={22} />
               </div>
               <div>
-                <h2 style={{ fontSize: '1.5rem', color: '#f8fafc' }}>
+                <h2 style={{ fontSize: '1.5rem', color: '#f8fafc', margin: 0, fontFamily: "'Playfair Display', serif" }}>
                   Danh Mục Hạng Phòng Khách Sạn
                 </h2>
-                <p style={{ fontSize: '0.825rem', color: '#d4af37' }}>
-                  Chọn hạng phòng có sẵn để trải nghiệm dịch vụ nghỉ dưỡng tiêu chuẩn 5 sao
+                <p style={{ fontSize: '0.825rem', color: '#d4af37', margin: 0 }}>
+                  Quản lý bảng giá niêm yết, sức chứa tối đa, trang bị tiện nghi và hình ảnh các hạng phòng
                 </p>
               </div>
             </div>
           </div>
 
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-            Tổng số: <strong style={{ color: '#f3e5ab' }}>{roomTypes.length} hạng phòng</strong> • <strong style={{ color: '#10b981' }}>{rooms.filter(r => r.status === 'AVAILABLE').length} phòng trống sẵn sàng</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+              Tổng số: <strong style={{ color: '#f3e5ab' }}>{roomTypes.length} hạng phòng</strong> • <strong style={{ color: '#10b981' }}>{rooms.filter(r => r.status === 'AVAILABLE').length} phòng trống</strong>
+            </div>
+
+            {userRole === 'ADMIN' && (
+              <button 
+                id="add-room-type-btn"
+                className="btn btn-gold"
+                onClick={handleOpenAdd}
+              >
+                <Plus size={16} />
+                <span>Thêm Hạng Phòng</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -44,7 +178,6 @@ export default function RoomTypesShowcase({
       {/* Room Types Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
         {roomTypes.map(rt => {
-          // Calculate available and total rooms for this type
           const roomsOfType = rooms.filter(r => r.type_id === rt.id || r.room_type_id === rt.id);
           const availableCount = roomsOfType.filter(r => r.status === 'AVAILABLE').length;
           const occupiedCount = roomsOfType.filter(r => r.status === 'OCCUPIED').length;
@@ -69,113 +202,109 @@ export default function RoomTypesShowcase({
                   alt={rt.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
+                
                 <div style={{
                   position: 'absolute',
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  background: 'linear-gradient(180deg, rgba(8,13,26,0.3) 0%, rgba(8,13,26,0.85) 100%)',
-                  padding: '1rem',
+                  top: '12px',
+                  left: '12px',
+                  background: 'rgba(8, 13, 26, 0.75)',
+                  backdropFilter: 'blur(8px)',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '20px',
+                  border: '1px solid var(--border-gold)',
                   display: 'flex',
-                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  fontSize: '0.75rem',
+                  color: '#f3e5ab',
+                  fontWeight: 600
+                }}>
+                  <Shield size={12} color="#d4af37" />
+                  <span>Mã: {rt.id}</span>
+                </div>
+
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: availableCount > 0 ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)',
+                  backdropFilter: 'blur(8px)',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '20px',
+                  fontSize: '0.75rem',
+                  color: '#fff',
+                  fontWeight: 600
+                }}>
+                  {availableCount > 0 ? `Còn ${availableCount} phòng trống` : 'Tạm kín phòng'}
+                </div>
+
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  left: '0',
+                  right: '0',
+                  padding: '1rem',
+                  background: 'linear-gradient(to top, rgba(8, 13, 26, 0.95), transparent)',
+                  display: 'flex',
+                  alignItems: 'baseline',
                   justifyContent: 'space-between'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{
-                      background: 'rgba(8,13,26,0.85)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid var(--border-gold)',
-                      color: '#f3e5ab',
-                      padding: '0.25rem 0.65rem',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700
-                    }}>
-                      MÃ: {rt.id}
-                    </span>
-
-                    <span className={`status-badge ${availableCount > 0 ? 'available' : 'occupied'}`}>
-                      {availableCount > 0 ? `🟢 Còn ${availableCount} phòng trống` : '🔴 Hết phòng trống'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 style={{ fontSize: '1.35rem', color: '#f8fafc', fontWeight: 700 }}>
-                      {rt.name}
-                    </h3>
-                    <div style={{ fontSize: '0.8rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Users size={14} color="#d4af37" /> Sức chứa: {rt.capacity} khách
-                      </span>
-                      <span>•</span>
-                      <span>Tổng số {roomsOfType.length} phòng</span>
-                    </div>
+                  <h3 style={{ fontSize: '1.25rem', color: '#f8fafc', margin: 0 }}>
+                    {rt.name}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#cbd5e1', fontSize: '0.8rem' }}>
+                    <Users size={14} color="#d4af37" />
+                    <span>Tối đa {rt.capacity} người</span>
                   </div>
                 </div>
               </div>
 
               {/* Body */}
-              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5 }}>
+              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', flex: 1 }}>
+                <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.5' }}>
                   {rt.description}
                 </p>
 
-                {/* Amenities */}
-                {rt.amenities && rt.amenities.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700, marginBottom: '0.4rem' }}>
-                      Tiện nghi & Dịch vụ đi kèm:
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                      {rt.amenities.map((amenity, idx) => (
-                        <span 
-                          key={idx}
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            padding: '0.2rem 0.55rem',
-                            borderRadius: '4px',
-                            fontSize: '0.75rem',
-                            color: '#cbd5e1',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem'
-                          }}
-                        >
-                          <Check size={12} color="#10b981" />
-                          <span>{amenity}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Room Availability breakdown */}
-                <div style={{ 
-                  background: 'rgba(255, 255, 255, 0.02)', 
-                  border: '1px solid rgba(255, 255, 255, 0.06)', 
-                  padding: '0.75rem', 
-                  borderRadius: '8px',
-                  display: 'flex',
-                  justifyContent: 'space-around',
-                  textAlign: 'center',
-                  fontSize: '0.75rem'
-                }}>
-                  <div>
-                    <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1rem' }}>{availableCount}</div>
-                    <div style={{ color: '#94a3b8' }}>Phòng trống</div>
-                  </div>
-                  <div style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }} />
-                  <div>
-                    <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '1rem' }}>{occupiedCount}</div>
-                    <div style={{ color: '#94a3b8' }}>Đang ở</div>
-                  </div>
-                  <div style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }} />
-                  <div>
-                    <div style={{ color: '#f59e0b', fontWeight: 800, fontSize: '1rem' }}>{reservedCount}</div>
-                    <div style={{ color: '#94a3b8' }}>Đã đặt</div>
-                  </div>
+                {/* Status distribution pills */}
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', fontSize: '0.75rem' }}>
+                  <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    {availableCount} Trống
+                  </span>
+                  <span style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    {occupiedCount} Đang ở
+                  </span>
+                  <span style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    {reservedCount} Đặt trước
+                  </span>
+                  <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#94a3b8', padding: '0.2rem 0.5rem', borderRadius: '4px', marginLeft: 'auto' }}>
+                    Tổng: {roomsOfType.length} phòng
+                  </span>
                 </div>
 
-                {/* Price and Action Button */}
+                {/* Amenities List */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                  {(rt.amenities || []).map((amenity, i) => (
+                    <span 
+                      key={i} 
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid var(--border-light)',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        color: '#94a3b8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <Check size={10} color="#10b981" />
+                      <span>{amenity}</span>
+                    </span>
+                  ))}
+                </div>
+
+                {/* Footer Price & Actions */}
                 <div style={{ 
                   marginTop: 'auto', 
                   paddingTop: '0.75rem', 
@@ -185,14 +314,24 @@ export default function RoomTypesShowcase({
                   alignItems: 'center'
                 }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Giá niêm yết từ:</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Giá niêm yết:</div>
                     <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f3e5ab' }}>
                       {rt.base_price?.toLocaleString('vi-VN')} đ
                       <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 'normal' }}> / đêm</span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {userRole === 'ADMIN' && (
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleOpenEdit(rt)}
+                        title="Chỉnh sửa giá và thông tin hạng phòng"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                    )}
+
                     <button 
                       className="btn btn-gold btn-sm"
                       onClick={() => onBookRoomType(rt)}
@@ -217,6 +356,229 @@ export default function RoomTypesShowcase({
           );
         })}
       </div>
+
+      {/* MODAL: EDIT ROOM TYPE */}
+      {editingType && (
+        <div className="modal-backdrop" onClick={() => setEditingType(null)}>
+          <div className="modal-content" style={{ maxWidth: '580px', width: '92%' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '1.35rem', color: '#fff', margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                Chỉnh Sửa Hạng Phòng: {editingType.name}
+              </h3>
+              <button className="btn btn-secondary btn-sm" onClick={() => setEditingType(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {errorMsg && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.75rem', borderRadius: '8px', color: '#fca5a5', fontSize: '0.85rem' }}>
+                    {errorMsg}
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label className="form-label">Tên hạng phòng *</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Giá niêm yết (VNĐ/đêm) *</label>
+                    <input 
+                      type="number"
+                      step="50000"
+                      className="form-input"
+                      value={formData.base_price}
+                      onChange={e => setFormData({ ...formData, base_price: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Sức chứa tối đa (người)</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="10"
+                      className="form-input"
+                      value={formData.capacity}
+                      onChange={e => setFormData({ ...formData, capacity: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Mô tả đặc điểm</label>
+                  <textarea 
+                    className="form-textarea"
+                    rows={2}
+                    value={formData.description}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Tiện nghi (phân cách bằng dấu phẩy)</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value={formData.amenitiesStr}
+                    onChange={e => setFormData({ ...formData, amenitiesStr: e.target.value })}
+                    placeholder="WiFi, Điều hòa, Smart TV, Bồn tắm..."
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Đường dẫn ảnh đại diện (URL)</label>
+                  <input 
+                    type="url"
+                    className="form-input"
+                    value={formData.image}
+                    onChange={e => setFormData({ ...formData, image: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setEditingType(null)}>
+                  Hủy
+                </button>
+                <button type="submit" className="btn btn-gold" disabled={isSaving}>
+                  {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD NEW ROOM TYPE */}
+      {isAddTypeModalOpen && (
+        <div className="modal-backdrop" onClick={() => setIsAddTypeModalOpen(false)}>
+          <div className="modal-content" style={{ maxWidth: '580px', width: '92%' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '1.35rem', color: '#fff', margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                Thêm Hạng Phòng Mới
+              </h3>
+              <button className="btn btn-secondary btn-sm" onClick={() => setIsAddTypeModalOpen(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAdd}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {errorMsg && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.75rem', borderRadius: '8px', color: '#fca5a5', fontSize: '0.85rem' }}>
+                    {errorMsg}
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Mã hạng phòng *</label>
+                    <input 
+                      type="text"
+                      className="form-input"
+                      placeholder="VD: VIP"
+                      value={formData.id}
+                      onChange={e => setFormData({ ...formData, id: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Tên hạng phòng *</label>
+                    <input 
+                      type="text"
+                      className="form-input"
+                      placeholder="VD: Grand Panorama Suite"
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Giá niêm yết (VNĐ/đêm) *</label>
+                    <input 
+                      type="number"
+                      step="50000"
+                      className="form-input"
+                      value={formData.base_price}
+                      onChange={e => setFormData({ ...formData, base_price: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Sức chứa tối đa (người)</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="10"
+                      className="form-input"
+                      value={formData.capacity}
+                      onChange={e => setFormData({ ...formData, capacity: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Mô tả đặc điểm</label>
+                  <textarea 
+                    className="form-textarea"
+                    rows={2}
+                    placeholder="Mô tả không gian và phong cách thiết kế..."
+                    value={formData.description}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Tiện nghi (phân cách bằng dấu phẩy)</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value={formData.amenitiesStr}
+                    onChange={e => setFormData({ ...formData, amenitiesStr: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Đường dẫn ảnh đại diện (URL)</label>
+                  <input 
+                    type="url"
+                    className="form-input"
+                    value={formData.image}
+                    onChange={e => setFormData({ ...formData, image: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setIsAddTypeModalOpen(false)}>
+                  Hủy
+                </button>
+                <button type="submit" className="btn btn-gold" disabled={isSaving}>
+                  {isSaving ? 'Đang tạo...' : 'Xác Nhận Thêm'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

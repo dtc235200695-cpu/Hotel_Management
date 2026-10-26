@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, Calendar, FileText, Coffee, BarChart3, Cloud, Users, 
-  Plus, CheckCircle, LogIn, LogOut, Sparkles, X, AlertCircle, Bed
+  Plus, CheckCircle, LogIn, LogOut, Sparkles, X, AlertCircle, Bed, Globe,
+  Edit2, Trash2, UserCheck
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -16,6 +17,9 @@ import ServicesManager from './components/ServicesManager';
 import ReportsDashboard from './components/ReportsDashboard';
 import CloudOperations from './components/CloudOperations';
 import UserManager from './components/UserManager';
+import PublicWebsite from './components/PublicWebsite';
+import CustomersManager from './components/CustomersManager';
+import HotelChatbot from './components/HotelChatbot';
 
 export const DEFAULT_ROOM_TYPES = [
   { 
@@ -61,6 +65,9 @@ export const DEFAULT_ROOM_TYPES = [
 ];
 
 export default function App() {
+  // Top-level View Mode: 'PUBLIC' (Website Khách Hàng) | 'PMS' (Cổng Quản Trị Khách Sạn)
+  const [viewMode, setViewMode] = useState('PUBLIC');
+
   // Navigation tab state
   const [activeTab, setActiveTab] = useState('FLOOR_PLAN');
 
@@ -102,6 +109,58 @@ export default function App() {
   const [walkInIdentity, setWalkInIdentity] = useState('');
 
   const [selectedRoomDetail, setSelectedRoomDetail] = useState(null);
+  const [editingRoom, setEditingRoom] = useState(null);
+  const [roomEditFormData, setRoomEditFormData] = useState({
+    room_number: '',
+    floor: 1,
+    room_type_id: '',
+    notes: ''
+  });
+
+  const handleOpenEditRoom = (room) => {
+    setEditingRoom(room);
+    setRoomEditFormData({
+      room_number: room.room_number,
+      floor: room.floor,
+      room_type_id: room.type_id || room.room_type_id || 'STD',
+      notes: room.notes || ''
+    });
+  };
+
+  const handleSaveEditRoom = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/rooms/${editingRoom.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(roomEditFormData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      alert('Đã cập nhật thông tin phòng thành công!');
+      setEditingRoom(null);
+      setSelectedRoomDetail(null);
+      loadAllData();
+    } catch (err) {
+      alert('Lỗi: ' + err.message);
+    }
+  };
+
+  const handleDeleteRoom = async (roomId, roomNumber) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa phòng ${roomNumber}?`)) return;
+    try {
+      const res = await fetch(`/api/rooms/${roomId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      alert(data.message);
+      setSelectedRoomDetail(null);
+      loadAllData();
+    } catch (err) {
+      alert('Lỗi: ' + err.message);
+    }
+  };
 
   // Fetch all core application data
   const loadAllData = async () => {
@@ -155,6 +214,20 @@ export default function App() {
     setPreSelectedRoom(null);
     setPreSelectedRoomType(roomType.id);
     setIsNewBookingModalOpen(true);
+  };
+
+  const handleChatbotAction = (action) => {
+    if (!action) return;
+    if (action.type === 'BOOK_ROOM_TYPE') {
+      const targetType = roomTypes.find(rt => rt.id === action.roomTypeId);
+      if (targetType) {
+        handleBookRoomType(targetType);
+      } else {
+        setIsNewBookingModalOpen(true);
+      }
+    } else if (action.type === 'SWITCH_TAB' && action.tab) {
+      setActiveTab(action.tab);
+    }
   };
 
   const handleViewRoomsOfType = (typeId) => {
@@ -279,6 +352,18 @@ export default function App() {
     }
   };
 
+  // Render Public Website Mode
+  if (viewMode === 'PUBLIC') {
+    return (
+      <PublicWebsite 
+        rooms={rooms}
+        roomTypes={roomTypes}
+        onSwitchToPms={() => setViewMode('PMS')}
+        onBookingCreated={loadAllData}
+      />
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top Navbar */}
@@ -286,10 +371,32 @@ export default function App() {
         currentUser={currentUser} 
         onRoleChange={handleRoleChange} 
         onRefreshData={loadAllData} 
+        onSwitchToPublic={() => setViewMode('PUBLIC')}
+        onUserLogin={(user) => {
+          setCurrentUser(user);
+          loadAllData();
+        }}
       />
 
       {/* Navigation Tabs */}
       <nav className="nav-tabs-container">
+        {/* Switch to Public Website Tab */}
+        <button 
+          id="tab-public-website"
+          className="nav-tab-btn"
+          style={{ 
+            background: 'rgba(212, 175, 55, 0.15)', 
+            color: '#f3e5ab', 
+            border: '1px solid rgba(212, 175, 55, 0.4)',
+            fontWeight: 700 
+          }}
+          onClick={() => setViewMode('PUBLIC')}
+          title="Mở Website Khách Hàng / Đặt Phòng Trực Tuyến"
+        >
+          <Globe size={16} />
+          <span>🌐 Xem Website Khách Hàng</span>
+        </button>
+
         <button 
           id="tab-floorplan"
           className={`nav-tab-btn ${activeTab === 'FLOOR_PLAN' ? 'active' : ''}`}
@@ -315,6 +422,15 @@ export default function App() {
         >
           <Calendar size={16} />
           <span>Quản Lý Đặt Phòng ({bookings.filter(b => b.status === 'CONFIRMED').length})</span>
+        </button>
+
+        <button 
+          id="tab-customers"
+          className={`nav-tab-btn ${activeTab === 'CUSTOMERS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('CUSTOMERS')}
+        >
+          <UserCheck size={16} />
+          <span>Hồ Sơ Khách Hàng</span>
         </button>
 
         <button 
@@ -388,12 +504,15 @@ export default function App() {
             rooms={rooms}
             onBookRoomType={handleBookRoomType}
             onViewRoomsOfType={handleViewRoomsOfType}
+            onRoomTypeUpdated={loadAllData}
+            userRole={currentUser.role}
           />
         )}
 
         {activeTab === 'BOOKINGS' && (
           <BookingManager 
             bookings={bookings}
+            rooms={rooms}
             onOpenNewBookingModal={() => {
               setPreSelectedRoom(null);
               setPreSelectedRoomType('ALL');
@@ -401,8 +520,13 @@ export default function App() {
             }}
             onCheckInFromBooking={handleCheckInFromBooking}
             onCancelBooking={handleCancelBooking}
+            onBookingUpdated={loadAllData}
             userRole={currentUser.role}
           />
+        )}
+
+        {activeTab === 'CUSTOMERS' && (
+          <CustomersManager currentUserRole={currentUser.role} />
         )}
 
         {activeTab === 'INVOICES' && (
@@ -641,7 +765,30 @@ export default function App() {
               </div>
             </div>
 
-            <div className="modal-footer">
+            <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleOpenEditRoom(selectedRoomDetail)}
+                  title="Chỉnh sửa số phòng, tầng hoặc loại phòng"
+                >
+                  <Edit2 size={14} />
+                  <span>Sửa Thông Tin</span>
+                </button>
+
+                {currentUser.role === 'ADMIN' && selectedRoomDetail.status !== 'OCCUPIED' && (
+                  <button 
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => handleDeleteRoom(selectedRoomDetail.id, selectedRoomDetail.room_number)}
+                    title="Xóa phòng khỏi hệ thống"
+                    style={{ color: '#ef4444' }}
+                  >
+                    <Trash2 size={14} />
+                    <span>Xóa Phòng</span>
+                  </button>
+                )}
+              </div>
+
               <button className="btn btn-secondary" onClick={() => setSelectedRoomDetail(null)}>
                 Đóng
               </button>
@@ -649,6 +796,94 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Modal: Edit Room Information */}
+      {editingRoom && (
+        <div className="modal-backdrop" onClick={() => setEditingRoom(null)}>
+          <div className="modal-content" style={{ maxWidth: '500px', width: '92%' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '1.35rem', color: '#fff', margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                Chỉnh Sửa Phòng {editingRoom.room_number}
+              </h3>
+              <button className="btn btn-secondary btn-sm" onClick={() => setEditingRoom(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditRoom}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Số phòng *</label>
+                    <input 
+                      type="text"
+                      className="form-input"
+                      value={roomEditFormData.room_number}
+                      onChange={e => setRoomEditFormData({ ...roomEditFormData, room_number: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Tầng số *</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="20"
+                      className="form-input"
+                      value={roomEditFormData.floor}
+                      onChange={e => setRoomEditFormData({ ...roomEditFormData, floor: parseInt(e.target.value, 10) || 1 })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Hạng phòng *</label>
+                  <select 
+                    className="form-select"
+                    value={roomEditFormData.room_type_id}
+                    onChange={e => setRoomEditFormData({ ...roomEditFormData, room_type_id: e.target.value })}
+                  >
+                    {roomTypes.map(rt => (
+                      <option key={rt.id} value={rt.id}>
+                        {rt.name} ({rt.id}) — {rt.base_price?.toLocaleString('vi-VN')} đ/đêm
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Ghi chú phòng</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value={roomEditFormData.notes}
+                    onChange={e => setRoomEditFormData({ ...roomEditFormData, notes: e.target.value })}
+                    placeholder="VD: Ban công rộng, view đẹp..."
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setEditingRoom(null)}>
+                  Hủy
+                </button>
+                <button type="submit" className="btn btn-gold">
+                  Lưu Thông Tin Phòng
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 24/7 AI Concierge Chatbot */}
+      <HotelChatbot 
+        viewMode={viewMode}
+        user={user}
+        onAction={handleChatbotAction}
+      />
     </div>
   );
 }
