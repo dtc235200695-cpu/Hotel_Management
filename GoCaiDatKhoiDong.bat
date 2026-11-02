@@ -13,3 +13,4 @@ echo [*] Khi nào cần dùng lại, bạn có thể chạy lại file CaiDatKho
 echo =========================================================================
 echo.
 pause
+

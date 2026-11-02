@@ -29,3 +29,4 @@ echo [*] Đã kích hoạt máy chủ chạy ngầm thành công!
 start "" "http://localhost:3001"
 :end
 pause
+

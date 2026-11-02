@@ -14,3 +14,4 @@ echo [V] Đã dừng toàn bộ máy chủ HotelCloud thành công!
 echo =========================================================================
 echo.
 pause
+
