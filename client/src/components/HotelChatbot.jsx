@@ -215,6 +215,7 @@ export default function HotelChatbot({ viewMode = 'PUBLIC', user = null, onActio
       {/* Floating Toggle Button */}
       {!isOpen && (
         <button
+          className="hotel-chatbot-toggle-btn"
           onClick={() => {
             setIsOpen(true);
             setShowTooltip(false);
@@ -273,6 +274,7 @@ export default function HotelChatbot({ viewMode = 'PUBLIC', user = null, onActio
       {/* Chat Window */}
       {isOpen && (
         <div
+          className="hotel-chatbot-window"
           style={{
             position: 'fixed',
             bottom: '24px',

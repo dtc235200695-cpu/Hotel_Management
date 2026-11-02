@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Crown, Cloud, Shield, RefreshCw, UserCheck, Bell, Database, Globe, LogIn, LogOut, Key, User, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Crown, Cloud, Shield, RefreshCw, UserCheck, Bell, Database, Globe, LogIn, LogOut, Key, User, X, AlertCircle, CheckCircle, Menu } from 'lucide-react';
 
 export default function Navbar({ currentUser, onRoleChange, onRefreshData, onSwitchToPublic, onUserLogin }) {
   const [cloudStatus, setCloudStatus] = useState({
@@ -8,6 +8,7 @@ export default function Navbar({ currentUser, onRoleChange, onRefreshData, onSwi
     provider: 'Cloudflare D1 / Cloud API'
   });
   const [isPinging, setIsPinging] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Login Modal State
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -79,15 +80,38 @@ export default function Navbar({ currentUser, onRoleChange, onRefreshData, onSwi
       <header className="app-header">
         <div className="brand-wrapper">
           <div className="brand-logo-icon">
-            <Crown size={24} />
+            <Crown size={22} />
           </div>
           <div>
             <h1 className="brand-title">HotelCloud</h1>
-            <p className="brand-subtitle">Hệ Thống Quản Lý Khách Sạn Cao Cấp</p>
+            <p className="brand-subtitle hide-on-mobile">Hệ Thống Quản Lý Khách Sạn Cao Cấp</p>
           </div>
         </div>
 
-        <div className="header-actions">
+        {/* Mobile Action Controls */}
+        <div className="show-on-mobile" style={{ display: 'none', alignItems: 'center', gap: '0.5rem' }}>
+          <button 
+            className="btn btn-gold btn-sm"
+            onClick={onSwitchToPublic}
+            style={{ padding: '0.4rem 0.65rem', fontSize: '0.75rem', fontWeight: 700 }}
+            title="Website Khách"
+          >
+            <Globe size={13} />
+            <span>Web</span>
+          </button>
+          
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{ padding: '0.45rem', minWidth: '38px', minHeight: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            aria-label="Mở Menu"
+          >
+            {isMobileMenuOpen ? <X size={20} color="#d4af37" /> : <Menu size={20} color="#d4af37" />}
+          </button>
+        </div>
+
+        {/* Desktop Header Actions */}
+        <div className="header-actions hide-on-mobile">
           {/* Switch to Public Website */}
           <button 
             id="btn-switch-to-public-website"
@@ -155,7 +179,7 @@ export default function Navbar({ currentUser, onRoleChange, onRefreshData, onSwi
             }}>
               {currentUser.full_name ? currentUser.full_name.charAt(0) : 'U'}
             </div>
-            <div style={{ display: 'none', md: 'block' }}>
+            <div>
               <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser.full_name}</div>
               <div style={{ fontSize: '0.7rem', color: '#d4af37' }}>{currentUser.role}</div>
             </div>
@@ -174,6 +198,122 @@ export default function Navbar({ currentUser, onRoleChange, onRefreshData, onSwi
           </div>
         </div>
       </header>
+
+      {/* MOBILE NAV DRAWER / OVERLAY */}
+      {isMobileMenuOpen && (
+        <div 
+          className="mobile-nav-backdrop"
+          onClick={() => setIsMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            top: '60px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 90,
+            animation: 'fadeIn 0.2s ease'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#0f172a',
+              borderBottom: '1px solid var(--border-gold)',
+              padding: '1.25rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              animation: 'slideUp 0.2s ease'
+            }}
+          >
+            {/* User profile card */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  color: '#fff',
+                  fontSize: '1rem'
+                }}>
+                  {currentUser.full_name ? currentUser.full_name.charAt(0) : 'U'}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>{currentUser.full_name}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#d4af37' }}>Vai trò hiện tại: {currentUser.role}</div>
+                </div>
+              </div>
+              <button 
+                className="btn btn-secondary btn-sm"
+                onClick={() => { setIsMobileMenuOpen(false); setIsLoginModalOpen(true); }}
+              >
+                <LogIn size={13} />
+                <span>Đổi TK</span>
+              </button>
+            </div>
+
+            {/* Fast Role Switcher for Mobile */}
+            <div>
+              <label style={{ fontSize: '0.75rem', color: '#d4af37', fontWeight: 700, display: 'block', marginBottom: '0.4rem' }}>
+                CHUYỂN ĐỔI VAI TRÒ NHANH:
+              </label>
+              <select 
+                className="form-select"
+                value={currentUser.role}
+                onChange={(e) => {
+                  onRoleChange(e.target.value);
+                  setIsMobileMenuOpen(false);
+                }}
+                style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem' }}
+              >
+                <option value="ADMIN">👑 Quản Trị Viên (Admin)</option>
+                <option value="RECEPTIONIST">🛎️ Lễ Tân (Receptionist)</option>
+                <option value="MANAGER">📊 Quản Lý (Manager)</option>
+              </select>
+            </div>
+
+            {/* Cloud Status & Sync */}
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div 
+                className="cloud-pill" 
+                style={{ flex: 1, justifyContent: 'center', padding: '0.6rem 0.75rem', fontSize: '0.85rem' }}
+                onClick={fetchCloudStatus}
+              >
+                <div className="dot" style={{ background: cloudStatus.status === 'ONLINE' ? '#10b981' : '#ef4444' }}></div>
+                <Cloud size={15} />
+                <span>Cloud: {cloudStatus.latencyMs}ms</span>
+              </div>
+
+              <button 
+                className="btn btn-secondary"
+                onClick={() => { onRefreshData(); setIsMobileMenuOpen(false); }}
+                style={{ flex: 1, padding: '0.6rem 0.75rem', fontSize: '0.85rem' }}
+              >
+                <RefreshCw size={14} />
+                <span>Đồng bộ lại</span>
+              </button>
+            </div>
+
+            {/* Switch to Public Website Button */}
+            <button 
+              className="btn btn-gold"
+              onClick={() => { onSwitchToPublic(); setIsMobileMenuOpen(false); }}
+              style={{ width: '100%', padding: '0.8rem', fontWeight: 700, fontSize: '0.95rem' }}
+            >
+              <Globe size={16} />
+              <span>Mở Cổng Khách Hàng (Website 5 Sao)</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* LOGIN MODAL */}
       {isLoginModalOpen && (

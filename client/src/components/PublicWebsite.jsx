@@ -3,7 +3,7 @@ import {
   Crown, Star, MapPin, Phone, Mail, Calendar, Clock, Users, Bed, Check, 
   Sparkles, Shield, Wifi, Tv, Coffee, Search, ArrowRight, X, ChevronRight, 
   Utensils, Waves, Car, Dumbbell, Award, CreditCard, QrCode, CheckCircle, 
-  FileText, ExternalLink, AlertCircle, Heart, Share2, Compass, Printer
+  FileText, ExternalLink, AlertCircle, Heart, Share2, Compass, Printer, Menu
 } from 'lucide-react';
 
 export default function PublicWebsite({ 
@@ -12,6 +12,9 @@ export default function PublicWebsite({
   onSwitchToPms,
   onBookingCreated
 }) {
+  // Mobile Navigation Drawer state
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
   // Filter & Search states
   const todayStr = new Date().toISOString().split('T')[0];
   const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -190,7 +193,7 @@ export default function PublicWebsite({
     <div className="public-website-container" style={{ minHeight: '100vh', background: '#070b14', color: '#f8fafc', overflowX: 'hidden' }}>
       
       {/* 1. TOP LUXURY ANNOUNCEMENT & CONTACT BAR */}
-      <div style={{
+      <div className="public-top-bar" style={{
         background: 'rgba(10, 16, 30, 0.95)',
         borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
         fontSize: '0.8rem',
@@ -199,18 +202,18 @@ export default function PublicWebsite({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '0.75rem'
+        gap: '0.5rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', color: '#cbd5e1' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <span className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <MapPin size={13} color="#d4af37" /> 01 Trần Phú, Bãi Biển Lộc Thọ, TP. Nha Trang
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Phone size={13} color="#d4af37" /> Hotline 24/7: <strong style={{ color: '#f3e5ab' }}>1900 8888</strong>
-          </span>
+          <a href="tel:19008888" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#cbd5e1', textDecoration: 'none' }}>
+            <Phone size={13} color="#d4af37" /> Hotline: <strong style={{ color: '#f3e5ab' }}>1900 8888</strong>
+          </a>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button 
             id="lookup-reservation-top-btn"
             onClick={() => { setLookupQuery(''); setLookupResults(null); setLookupError(''); setIsLookupModalOpen(true); }}
@@ -223,7 +226,8 @@ export default function PublicWebsite({
               alignItems: 'center',
               gap: '0.35rem',
               fontSize: '0.8rem',
-              fontWeight: 600
+              fontWeight: 600,
+              padding: '0.2rem 0.4rem'
             }}
           >
             <Search size={13} />
@@ -240,7 +244,7 @@ export default function PublicWebsite({
               background: 'rgba(212, 175, 55, 0.15)',
               border: '1px solid rgba(212, 175, 55, 0.4)',
               color: '#f3e5ab',
-              padding: '0.2rem 0.65rem',
+              padding: '0.25rem 0.65rem',
               borderRadius: '20px',
               fontSize: '0.75rem',
               fontWeight: 600,
@@ -253,31 +257,32 @@ export default function PublicWebsite({
             title="Chuyển sang Giao diện Quản trị Khách sạn (HotelCloud PMS)"
           >
             <Shield size={12} />
-            <span>Cổng Quản Trị Khách Sạn (PMS)</span>
+            <span className="hide-on-mobile">Cổng Quản Trị</span>
+            <span>PMS</span>
             <ExternalLink size={11} />
           </button>
         </div>
       </div>
 
       {/* 2. PUBLIC HEADER / NAVBAR */}
-      <header style={{
+      <header className="public-header" style={{
         position: 'sticky',
         top: 0,
         zIndex: 100,
         backdropFilter: 'blur(16px)',
-        background: 'rgba(7, 11, 20, 0.85)',
+        background: 'rgba(7, 11, 20, 0.92)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        padding: '0.85rem 2rem',
+        padding: '0.75rem 1.25rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '1rem'
+        gap: '0.75rem'
       }}>
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <div style={{
-            width: '42px',
-            height: '42px',
+            width: '38px',
+            height: '38px',
             borderRadius: '10px',
             background: 'linear-gradient(135deg, #d4af37 0%, #aa8214 100%)',
             display: 'flex',
@@ -286,25 +291,25 @@ export default function PublicWebsite({
             color: '#080d1a',
             boxShadow: '0 4px 15px rgba(212, 175, 55, 0.35)'
           }}>
-            <Crown size={24} />
+            <Crown size={22} />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '1px', fontFamily: "'Playfair Display', serif", color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.5px', fontFamily: "'Playfair Display', serif", color: '#fff' }}>
                 HOTELCLOUD
               </span>
               <span style={{ display: 'flex', color: '#d4af37' }}>
-                {[...Array(5)].map((_, i) => <Star key={i} size={11} fill="#d4af37" />)}
+                {[...Array(5)].map((_, i) => <Star key={i} size={10} fill="#d4af37" />)}
               </span>
             </div>
-            <p style={{ fontSize: '0.7rem', color: '#d4af37', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600 }}>
+            <p className="hide-on-mobile" style={{ fontSize: '0.65rem', color: '#d4af37', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>
               Luxury Resort & Five-Star Hotel
             </p>
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.75rem', fontSize: '0.9rem', fontWeight: 500 }}>
+        {/* Desktop Navigation Links */}
+        <nav className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
           <a href="#hero" style={{ color: '#fff', textDecoration: 'none', transition: 'color 0.2s' }}>Trang Chủ</a>
           <a href="#suites" style={{ color: '#cbd5e1', textDecoration: 'none', transition: 'color 0.2s' }}>Hạng Phòng & Giá</a>
           <a href="#amenities" style={{ color: '#cbd5e1', textDecoration: 'none', transition: 'color 0.2s' }}>Tiện Ích 5 Sao</a>
@@ -313,8 +318,8 @@ export default function PublicWebsite({
           <a href="#contact" style={{ color: '#cbd5e1', textDecoration: 'none', transition: 'color 0.2s' }}>Liên Hệ</a>
         </nav>
 
-        {/* Header Action Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <button 
             id="book-now-header-btn"
             onClick={() => {
@@ -323,17 +328,149 @@ export default function PublicWebsite({
             }}
             className="btn btn-gold"
             style={{
-              padding: '0.6rem 1.25rem',
-              fontSize: '0.875rem',
+              padding: '0.55rem 1rem',
+              fontSize: '0.825rem',
               fontWeight: 700,
               boxShadow: '0 4px 15px rgba(212, 175, 55, 0.35)'
             }}
           >
-            <Calendar size={15} />
-            <span>Đặt Phòng Ngay</span>
+            <Calendar size={14} />
+            <span>Đặt Phòng</span>
+          </button>
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            className="show-on-mobile btn btn-secondary"
+            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            style={{
+              display: 'none',
+              padding: '0.45rem',
+              minWidth: '38px',
+              minHeight: '38px',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            aria-label="Menu"
+          >
+            {isMobileNavOpen ? <X size={20} color="#d4af37" /> : <Menu size={20} color="#d4af37" />}
           </button>
         </div>
       </header>
+
+      {/* MOBILE NAVIGATION DRAWER */}
+      {isMobileNavOpen && (
+        <div 
+          onClick={() => setIsMobileNavOpen(false)}
+          style={{
+            position: 'fixed',
+            top: '56px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 99,
+            animation: 'fadeIn 0.2s ease'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#070b14',
+              borderBottom: '2px solid var(--border-gold)',
+              padding: '1.25rem 1.5rem 1.75rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              animation: 'slideUp 0.25s ease'
+            }}
+          >
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '1rem' }}>
+              <a 
+                href="#hero" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#fff', textDecoration: 'none', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                Trang Chủ
+              </a>
+              <a 
+                href="#suites" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#f3e5ab', textDecoration: 'none', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: 600 }}
+              >
+                Hạng Phòng & Bảng Giá 5 Sao
+              </a>
+              <a 
+                href="#amenities" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                Tiện Ích & Dịch Vụ Nghỉ Dưỡng
+              </a>
+              <a 
+                href="#offers" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                Gói Ưu Đãi & Khuyến Mãi
+              </a>
+              <a 
+                href="#reviews" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                Đánh Giá Của Khách Hàng
+              </a>
+              <a 
+                href="#contact" 
+                onClick={() => setIsMobileNavOpen(false)}
+                style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.5rem 0' }}
+              >
+                Liên Hệ & Vị Trí
+              </a>
+            </nav>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <button 
+                onClick={() => {
+                  setIsMobileNavOpen(false);
+                  const firstType = roomTypes[0] || null;
+                  if (firstType) handleStartBooking(firstType);
+                }}
+                className="btn btn-gold"
+                style={{ padding: '0.85rem', fontWeight: 700, fontSize: '0.95rem' }}
+              >
+                <Calendar size={16} />
+                <span>Đặt Phòng Ngay</span>
+              </button>
+
+              <button 
+                onClick={() => {
+                  setIsMobileNavOpen(false);
+                  setLookupQuery(''); setLookupResults(null); setLookupError(''); setIsLookupModalOpen(true);
+                }}
+                className="btn btn-secondary"
+                style={{ padding: '0.8rem', fontSize: '0.9rem' }}
+              >
+                <Search size={15} color="#d4af37" />
+                <span>Tra Cứu Mã Đặt Phòng / SĐT</span>
+              </button>
+
+              <button 
+                onClick={() => {
+                  setIsMobileNavOpen(false);
+                  onSwitchToPms();
+                }}
+                className="btn btn-secondary"
+                style={{ padding: '0.8rem', fontSize: '0.9rem', borderColor: 'rgba(212,175,55,0.3)', color: '#f3e5ab' }}
+              >
+                <Shield size={15} color="#d4af37" />
+                <span>Chuyển Sang Cổng Quản Trị PMS</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3. HERO BANNER SECTION */}
       <section id="hero" style={{
