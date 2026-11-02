@@ -10,9 +10,9 @@
   <style>
     :root {
       --bg-dark: #080b11;
-      --card-bg: rgba(18, 24, 38, 0.85);
-      --card-border: rgba(212, 175, 55, 0.2);
-      --card-border-hover: rgba(212, 175, 55, 0.6);
+      --card-bg: rgba(18, 24, 38, 0.88);
+      --card-border: rgba(212, 175, 55, 0.22);
+      --card-border-hover: rgba(212, 175, 55, 0.65);
       --gold-primary: #d4af37;
       --gold-light: #f5e7b2;
       --gold-gradient: linear-gradient(135deg, #fce08e 0%, #d4af37 50%, #997517 100%);
@@ -33,8 +33,8 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
         linear-gradient(180deg, #090d15 0%, #06090e 100%);
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -42,7 +42,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px 60px;
+      padding: 36px 20px 60px;
     }
 
     .container {
@@ -50,25 +50,24 @@
       max-width: 1100px;
     }
 
-    /* Header */
     header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     .brand-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 16px;
+      padding: 6px 18px;
       border-radius: 9999px;
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.35);
       color: var(--gold-light);
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.5px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       text-transform: uppercase;
     }
 
@@ -80,7 +79,7 @@
 
     h1 {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(32px, 5vw, 48px);
+      font-size: clamp(32px, 5vw, 46px);
       font-weight: 700;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
@@ -92,16 +91,16 @@
     .subtitle {
       color: var(--text-muted);
       font-size: clamp(15px, 2vw, 17px);
-      max-width: 700px;
+      max-width: 720px;
       margin: 0 auto;
       line-height: 1.6;
     }
 
-    /* Live Status Bar */
+    /* Live Server Status Bar */
     .status-bar {
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
       padding: 16px 24px;
       display: flex;
@@ -109,7 +108,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      margin-bottom: 36px;
+      margin-bottom: 30px;
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
@@ -155,8 +154,8 @@
     }
 
     .btn-refresh {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       color: var(--text-main);
       padding: 8px 16px;
       border-radius: 8px;
@@ -175,6 +174,50 @@
       color: var(--gold-light);
     }
 
+    /* Quick Launch Notice */
+    .launch-banner {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .launch-banner-text {
+      font-size: 14px;
+      color: #e2e8f0;
+    }
+
+    .launch-banner-text strong {
+      color: var(--gold-light);
+    }
+
+    .btn-bat-open {
+      background: var(--gold-gradient);
+      color: #0b0f17;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-bat-open:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
     /* Grid Sections */
     .section-title {
       font-size: 20px;
@@ -190,16 +233,15 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
 
-    /* Cards */
     .portal-card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 28px;
+      padding: 26px;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -232,15 +274,15 @@
     }
 
     .card-icon-box {
-      width: 52px;
-      height: 52px;
+      width: 50px;
+      height: 50px;
       border-radius: 14px;
       background: rgba(212, 175, 55, 0.12);
       border: 1px solid rgba(212, 175, 55, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       color: var(--gold-primary);
     }
 
@@ -252,8 +294,8 @@
 
     .card-badge {
       position: absolute;
-      top: 24px;
-      right: 24px;
+      top: 22px;
+      right: 22px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
@@ -285,13 +327,13 @@
       color: var(--text-muted);
       font-size: 14px;
       line-height: 1.6;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       flex-grow: 1;
     }
 
     .card-features {
       list-style: none;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -317,7 +359,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 14px 24px;
+      padding: 13px 22px;
       border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
@@ -358,11 +400,11 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
 
     .info-box {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       padding: 24px;
@@ -391,10 +433,10 @@
 
     .code-badge {
       font-family: monospace;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       padding: 3px 8px;
       border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: #38bdf8;
       cursor: pointer;
       user-select: all;
@@ -402,10 +444,9 @@
 
     .code-badge:hover {
       border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
+      background: rgba(56, 189, 248, 0.15);
     }
 
-    /* Terminal Command Box */
     .cmd-box {
       background: #020617;
       border: 1px solid #1e293b;
@@ -439,7 +480,6 @@
       color: #000;
     }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -462,7 +502,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Footer */
     footer {
       text-align: center;
       color: var(--text-muted);
@@ -490,16 +529,26 @@
       </p>
     </header>
 
+    <!-- 1-Click Launch Windows Batch Info -->
+    <div class="launch-banner">
+      <div class="launch-banner-text">
+        ⚡ <strong>Khởi động siêu nhanh:</strong> Bạn có thể nhấp đúp vào tệp <strong><code>KhoiDong.bat</code></strong> trong thư mục dự án để tự động bật máy chủ và mở website trên trình duyệt!
+      </div>
+      <button class="btn-bat-open" onclick="copyText('npm run dev')">
+        <span>Copy lệnh: npm run dev</span>
+      </button>
+    </div>
+
     <!-- Live Status Bar -->
     <div class="status-bar">
       <div class="status-indicators">
         <div class="status-item">
           <span class="pulse-dot checking" id="dot-frontend"></span>
-          <span>Frontend Client (Port 3000): <strong id="txt-frontend">Đang kiểm tra...</strong></span>
+          <span>Frontend Client (Port 3001): <strong id="txt-frontend">Đang kiểm tra...</strong></span>
         </div>
         <div class="status-item">
           <span class="pulse-dot checking" id="dot-backend"></span>
-          <span>Backend Server (Port 5000): <strong id="txt-backend">Đang kiểm tra...</strong></span>
+          <span>Backend Server (Port 5001): <strong id="txt-backend">Đang kiểm tra...</strong></span>
         </div>
       </div>
       <button class="btn-refresh" onclick="checkAllServers()">
@@ -546,12 +595,12 @@
           </ul>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <a href="http://localhost:3000" target="_blank" class="btn-action btn-gold">
-            <span>Truy Cập Ngay (Port 3000)</span>
+          <a href="http://localhost:3001" target="_blank" class="btn-action btn-gold" id="btn-client-link">
+            <span>Truy Cập Ngay (Port 3001)</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
-          <a href="http://localhost:5000" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
-            <span>Dự phòng: Mở qua Server (Port 5000)</span>
+          <a href="http://localhost:5001" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
+            <span>Dự phòng: Mở qua Server (Port 5001)</span>
           </a>
         </div>
       </div>
@@ -587,8 +636,8 @@
           </ul>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <a href="http://localhost:3000" target="_blank" class="btn-action btn-gold">
-            <span>Vào Hệ Thống PMS (Port 3000)</span>
+          <a href="http://localhost:3001" target="_blank" class="btn-action btn-gold">
+            <span>Vào Hệ Thống PMS (Port 3001)</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
           <button onclick="copyAccount('admin', 'admin123')" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
@@ -628,11 +677,11 @@
           </ul>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <a href="http://localhost:5000/api/rooms" target="_blank" class="btn-action btn-outline">
+          <a href="http://localhost:5001/api/rooms" target="_blank" class="btn-action btn-outline">
             <span>Xem Danh Sách Phòng API (JSON)</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
-          <a href="http://localhost:5000/api/room-types" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
+          <a href="http://localhost:5001/api/rooms/types" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
             <span>Xem Danh Mục Hạng Phòng API</span>
           </a>
         </div>
@@ -686,10 +735,11 @@
       <div class="info-box">
         <h3 style="font-size: 16px; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Lệnh Khởi Chạy Hệ Thống
+          Cách Chạy Hệ Thống
         </h3>
         <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5;">
-          Nếu chưa khởi động máy chủ, mở Terminal / PowerShell tại thư mục dự án này và chạy lệnh:
+          Cách 1: Nhấp đúp vào file <strong><code>KhoiDong.bat</code></strong> trong thư mục dự án.<br>
+          Cách 2: Mở Terminal tại thư mục dự án và chạy:
         </p>
 
         <div class="cmd-box">
@@ -701,7 +751,7 @@
         </div>
 
         <ol style="font-size: 13px; color: #cbd5e1; line-height: 1.7; padding-left: 20px;">
-          <li>Lệnh trên sẽ chạy đồng thời cả <strong>Backend API (5000)</strong> và <strong>Frontend (3000)</strong>.</li>
+          <li>Lệnh trên sẽ chạy đồng thời cả <strong>Backend API (5001)</strong> và <strong>Frontend (3001)</strong>.</li>
           <li>Sau khi hiển thị link, quay lại trang này bấm <strong>"Truy Cập Ngay"</strong> để bắt đầu trải nghiệm!</li>
         </ol>
       </div>
@@ -720,17 +770,19 @@
   <script>
     // Copy Helper
     function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        showToast('Đã sao chép: "' + text + '"');
-      }).catch(() => {
-        showToast('Đã chọn: ' + text);
-      });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Đã sao chép: "' + text + '"');
+        }).catch(() => {
+          prompt('Copy dòng này:', text);
+        });
+      } else {
+        prompt('Copy dòng này:', text);
+      }
     }
 
     function copyAccount(u, p) {
-      navigator.clipboard.writeText(`Tài khoản: ${u}\nMật khẩu: ${p}`).then(() => {
-        showToast(`Đã sao chép thông tin tài khoản (${u} / ${p})`);
-      });
+      copyText(`Tài khoản: ${u}\nMật khẩu: ${p}`);
     }
 
     function showToast(msg) {
@@ -742,28 +794,33 @@
       }, 2500);
     }
 
-    // Health Check Servers
+    // Health Check Servers (Test port 3001 first, then fallback to 3000)
     async function checkFrontend() {
       const dot = document.getElementById('dot-frontend');
       const txt = document.getElementById('txt-frontend');
       dot.className = 'pulse-dot checking';
       txt.textContent = 'Đang kiểm tra...';
 
-      try {
-        // Test fetch to frontend port 3000
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-        await fetch('http://localhost:3000/', { mode: 'no-cors', signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        dot.className = 'pulse-dot online';
-        txt.textContent = '🟢 Đang hoạt động (Sẵn sàng)';
-        txt.style.color = '#10b981';
-      } catch (e) {
-        dot.className = 'pulse-dot offline';
-        txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev)';
-        txt.style.color = '#ef4444';
+      const ports = [3001, 3000];
+      for (const port of ports) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1500);
+          await fetch(`http://localhost:${port}/`, { mode: 'no-cors', signal: controller.signal });
+          clearTimeout(timeoutId);
+          
+          dot.className = 'pulse-dot online';
+          txt.textContent = `🟢 Đang chạy (Port ${port})`;
+          txt.style.color = '#10b981';
+          return;
+        } catch (e) {
+          // continue checking next port
+        }
       }
+
+      dot.className = 'pulse-dot offline';
+      txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev hoặc KhoiDong.bat)';
+      txt.style.color = '#ef4444';
     }
 
     async function checkBackend() {
@@ -772,28 +829,28 @@
       dot.className = 'pulse-dot checking';
       txt.textContent = 'Đang kiểm tra...';
 
-      const startTime = performance.now();
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-        const res = await fetch('http://localhost:5000/api/rooms', { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        const latency = Math.round(performance.now() - startTime);
-        if (res.ok) {
+      const ports = [5001, 5000];
+      for (const port of ports) {
+        const startTime = performance.now();
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1500);
+          const res = await fetch(`http://localhost:${port}/api/rooms`, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
+          const latency = Math.round(performance.now() - startTime);
           dot.className = 'pulse-dot online';
-          txt.textContent = `🟢 Đang hoạt động (${latency}ms)`;
+          txt.textContent = `🟢 Đang hoạt động (Port ${port} • ${latency}ms)`;
           txt.style.color = '#10b981';
-        } else {
-          dot.className = 'pulse-dot online';
-          txt.textContent = `🟢 Đang chạy (HTTP ${res.status})`;
-          txt.style.color = '#10b981';
+          return;
+        } catch (e) {
+          // continue checking next port
         }
-      } catch (e) {
-        dot.className = 'pulse-dot offline';
-        txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev)';
-        txt.style.color = '#ef4444';
       }
+
+      dot.className = 'pulse-dot offline';
+      txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev hoặc KhoiDong.bat)';
+      txt.style.color = '#ef4444';
     }
 
     function checkAllServers() {
@@ -804,8 +861,7 @@
     // Run health check on page load
     window.addEventListener('DOMContentLoaded', () => {
       checkAllServers();
-      // Periodically check every 10 seconds
-      setInterval(checkAllServers, 10000);
+      setInterval(checkAllServers, 8000);
     });
   </script>
 </body>

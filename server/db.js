@@ -1,9 +1,55 @@
-const Database = require('better-sqlite3');
+let Database;
+try {
+  Database = require('better-sqlite3');
+} catch (e) {
+  Database = null;
+}
+
 const path = require('path');
 const fs = require('fs');
 
 const dbPath = path.join(__dirname, 'hotelcloud.db');
-const db = new Database(dbPath);
+
+function createDb(file) {
+  if (Database) {
+    return new Database(file);
+  }
+  // Fallback to built-in node:sqlite (Node.js v22.5+)
+  const { DatabaseSync } = require('node:sqlite');
+  const rawDb = new DatabaseSync(file);
+  return {
+    exec(sql) {
+      return rawDb.exec(sql);
+    },
+    pragma(str) {
+      try {
+        return rawDb.exec('PRAGMA ' + str);
+      } catch (err) {
+        // ignore pragma warning if any
+      }
+    },
+    prepare(sql) {
+      const stmt = rawDb.prepare(sql);
+      return {
+        all(...args) {
+          return stmt.all(...args);
+        },
+        get(...args) {
+          return stmt.get(...args);
+        },
+        run(...args) {
+          const res = stmt.run(...args);
+          return {
+            changes: Number(res.changes || 0),
+            lastInsertRowid: Number(res.lastInsertRowid || 0)
+          };
+        }
+      };
+    }
+  };
+}
+
+const db = createDb(dbPath);
 
 // Enable WAL mode and foreign keys for performance & integrity
 db.pragma('journal_mode = WAL');
