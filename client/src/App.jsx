@@ -881,7 +881,7 @@ export default function App() {
       {/* 24/7 AI Concierge Chatbot */}
       <HotelChatbot 
         viewMode={viewMode}
-        user={user}
+        user={currentUser}
         onAction={handleChatbotAction}
       />
     </div>
