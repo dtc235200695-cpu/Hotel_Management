@@ -10,13 +10,12 @@ echo.
 echo [*] Đang khởi động Backend Server (Port 5001)...
 echo [*] Đang khởi động Frontend Client (Port 3001)...
 echo.
-echo [*] Trình duyệt web sẽ tự động mở sau ít giây...
-echo.
-echo [*] Để dừng hệ thống: Nhấn Ctrl + C rồi chọn Y
+echo [*] Máy chủ đang chạy! Vui lòng giữ cửa sổ này để duy trì hệ thống.
+echo [*] Nhấn Ctrl + C để dừng hệ thống bất kỳ lúc nào.
 echo =========================================================================
 echo.
 
-start "" timeout /t 3 >nul ^& start "" "http://localhost:3001"
+start "" "http://localhost:3001"
 
 npm run dev
 pause
