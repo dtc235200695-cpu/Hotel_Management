@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HotelCloud – Cổng Truy Cập Hệ Thống Quản Lý Khách Sạn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080b11;
+      --card-bg: rgba(18, 24, 38, 0.85);
+      --card-border: rgba(212, 175, 55, 0.2);
+      --card-border-hover: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5e7b2;
+      --gold-gradient: linear-gradient(135deg, #fce08e 0%, #d4af37 50%, #997517 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+        linear-gradient(180deg, #090d15 0%, #06090e 100%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--gold-light);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .brand-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--gold-primary);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: clamp(15px, 2vw, 17px);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Live Status Bar */
+    .status-bar {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-indicators {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #64748b;
+      position: relative;
+    }
+
+    .pulse-dot.online {
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success);
+    }
+
+    .pulse-dot.offline {
+      background: var(--danger);
+      box-shadow: 0 0 10px var(--danger);
+    }
+
+    .pulse-dot.checking {
+      background: var(--warning);
+      animation: pulseAnim 1s infinite alternate;
+    }
+
+    @keyframes pulseAnim {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+
+    .btn-refresh {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-refresh:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    /* Grid Sections */
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold-light);
+    }
+
+    .grid-portal {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    /* Cards */
+    .portal-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .portal-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 20px 40px -10px rgba(212, 175, 55, 0.15);
+    }
+
+    .portal-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--gold-primary);
+    }
+
+    .card-icon-box.cyan {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.3);
+      color: var(--cyan);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-gold {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.2);
+      color: #a5f3fc;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      flex-grow: 1;
+    }
+
+    .card-features {
+      list-style: none;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-features li {
+      font-size: 13px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-features li svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #0b0f17;
+      border: none;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-gold:hover {
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--gold-light);
+    }
+
+    .btn-outline:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+      transform: translateY(-2px);
+    }
+
+    /* Accounts & Instructions Section */
+    .info-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .info-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .account-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+
+    .account-table th {
+      text-align: left;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .account-table td {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .code-badge {
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #38bdf8;
+      cursor: pointer;
+      user-select: all;
+    }
+
+    .code-badge:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    /* Terminal Command Box */
+    .cmd-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 0;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 14px;
+      color: #38bdf8;
+    }
+
+    .cmd-copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .cmd-copy-btn:hover {
+      background: var(--gold-primary);
+      color: #000;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      border: 1px solid var(--gold-primary);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 24px;
+      width: 100%;
+      max-width: 1100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        Hệ Thống Nghỉ Dưỡng & Khách Sạn 5 Sao
+      </div>
+      <h1>HotelCloud Cloud Portal</h1>
+      <p class="subtitle">
+        Cổng điều hướng truy cập trực tiếp Website Khách Đặt Phòng & Hệ Thống Quản Trị Khách Sạn PMS trên nền tảng điện toán đám mây.
+      </p>
+    </header>
+
+    <!-- Live Status Bar -->
+    <div class="status-bar">
+      <div class="status-indicators">
+        <div class="status-item">
+          <span class="pulse-dot checking" id="dot-frontend"></span>
+          <span>Frontend Client (Port 3000): <strong id="txt-frontend">Đang kiểm tra...</strong></span>
+        </div>
+        <div class="status-item">
+          <span class="pulse-dot checking" id="dot-backend"></span>
+          <span>Backend Server (Port 5000): <strong id="txt-backend">Đang kiểm tra...</strong></span>
+        </div>
+      </div>
+      <button class="btn-refresh" onclick="checkAllServers()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Làm mới kết nối
+      </button>
+    </div>
+
+    <!-- Main Navigation Grid -->
+    <div class="section-title">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Chọn Phân Hệ Cần Truy Cập
+    </div>
+
+    <div class="grid-portal">
+      <!-- Card 1: Public Booking Website -->
+      <div class="portal-card">
+        <span class="card-badge badge-gold">Dành Cho Khách Hàng</span>
+        <div>
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h2 class="card-title">Cổng Đặt Phòng Nghỉ Dưỡng</h2>
+          <p class="card-desc">
+            Trang web công cộng giới thiệu 5 hạng phòng sang trọng, tìm phòng theo ngày, đặt phòng trực tuyến tức thì và thanh toán VietQR tự động.
+          </p>
+          <ul class="card-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Showcase 5 hạng phòng cao cấp & Tiện nghi 5 sao
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Đặt phòng trực tuyến & Nhận mã Voucher điện tử
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Tự phục vụ tra cứu đơn theo SĐT hoặc mã booking
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Trợ lý ảo AI Concierge 24/7 tư vấn thông minh
+            </li>
+          </ul>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="http://localhost:3000" target="_blank" class="btn-action btn-gold">
+            <span>Truy Cập Ngay (Port 3000)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          <a href="http://localhost:5000" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
+            <span>Dự phòng: Mở qua Server (Port 5000)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: PMS Management Dashboard -->
+      <div class="portal-card">
+        <span class="card-badge badge-cyan">Dành Cho Khách Sạn</span>
+        <div>
+          <div class="card-icon-box cyan">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h2 class="card-title">Hệ Thống Quản Lý PMS</h2>
+          <p class="card-desc">
+            Bảng điều khiển khách sạn toàn diện: sơ đồ 28 phòng trực quan 5 tầng, check-in nhận phòng, gọi dịch vụ phòng, thanh toán & in hóa đơn.
+          </p>
+          <ul class="card-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Sơ đồ 28 phòng trực quan với 5 màu trạng thái
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Hệ thống phòng chống trùng lịch thông minh
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Quản lý khách hàng, hồ sơ & lịch sử lưu trú
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Báo cáo doanh thu & công suất phòng thời gian thực
+            </li>
+          </ul>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="http://localhost:3000" target="_blank" class="btn-action btn-gold">
+            <span>Vào Hệ Thống PMS (Port 3000)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          <button onclick="copyAccount('admin', 'admin123')" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
+            <span>Sao chép tài khoản Admin</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3: Backend API & Cloud Engine -->
+      <div class="portal-card">
+        <span class="card-badge badge-gold">Cloud Engine</span>
+        <div>
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <h2 class="card-title">Backend RESTful API</h2>
+          <p class="card-desc">
+            Dịch vụ đám mây xử lý API RESTful, cơ sở dữ liệu SQLite chuẩn hóa WAL mode, hệ thống Audit Log và bộ điều hướng Cloudflare D1 Serverless.
+          </p>
+          <ul class="card-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Kiểm tra tình trạng máy chủ (Health Check)
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              API Phòng & Hạng phòng (`/api/rooms`)
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              API Đặt phòng & Doanh thu (`/api/bookings`)
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Engine Chatbot AI Concierge (`/api/chatbot/message`)
+            </li>
+          </ul>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="http://localhost:5000/api/rooms" target="_blank" class="btn-action btn-outline">
+            <span>Xem Danh Sách Phòng API (JSON)</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          <a href="http://localhost:5000/api/room-types" target="_blank" class="btn-action btn-outline" style="font-size: 13px; padding: 10px 16px;">
+            <span>Xem Danh Mục Hạng Phòng API</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Info: Accounts & Startup Commands -->
+    <div class="info-container">
+      <!-- Accounts Box -->
+      <div class="info-box">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Tài Khoản Đăng Nhập Mẫu (Click để Copy)
+        </h3>
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th>Vai trò</th>
+              <th>Tài khoản</th>
+              <th>Mật khẩu</th>
+              <th>Quyền hạn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color: #fde047;">👑 Admin</strong></td>
+              <td><span class="code-badge" onclick="copyText('admin')">admin</span></td>
+              <td><span class="code-badge" onclick="copyText('admin123')">admin123</span></td>
+              <td style="color: var(--text-muted);">Toàn quyền</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #67e8f9;">🛎️ Lễ tân</strong></td>
+              <td><span class="code-badge" onclick="copyText('letan')">letan</span></td>
+              <td><span class="code-badge" onclick="copyText('letan123')">letan123</span></td>
+              <td style="color: var(--text-muted);">Check-in/out, Đặt phòng</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #a7f3d0;">📊 Quản lý</strong></td>
+              <td><span class="code-badge" onclick="copyText('quanly')">quanly</span></td>
+              <td><span class="code-badge" onclick="copyText('quanly123')">quanly123</span></td>
+              <td style="color: var(--text-muted);">Xem doanh thu, báo cáo</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">
+          💡 <em>Mẹo:</em> Bạn cũng có thể chuyển đổi nhanh vai trò trực tiếp trên thanh công cụ góc trên giao diện PMS mà không cần đăng nhập lại.
+        </div>
+      </div>
+
+      <!-- Startup Instructions -->
+      <div class="info-box">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Lệnh Khởi Chạy Hệ Thống
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5;">
+          Nếu chưa khởi động máy chủ, mở Terminal / PowerShell tại thư mục dự án này và chạy lệnh:
+        </p>
+
+        <div class="cmd-box">
+          <code>npm run dev</code>
+          <button class="cmd-copy-btn" onclick="copyText('npm run dev')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Sao chép
+          </button>
+        </div>
+
+        <ol style="font-size: 13px; color: #cbd5e1; line-height: 1.7; padding-left: 20px;">
+          <li>Lệnh trên sẽ chạy đồng thời cả <strong>Backend API (5000)</strong> và <strong>Frontend (3000)</strong>.</li>
+          <li>Sau khi hiển thị link, quay lại trang này bấm <strong>"Truy Cập Ngay"</strong> để bắt đầu trải nghiệm!</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>HotelCloud – Hệ Thống Quản Lý Khách Sạn Trên Nền Tảng Điện Toán Đám Mây</p>
+      <p style="margin-top: 6px; font-size: 12px; opacity: 0.7;">Đồ án công nghệ: Cloud Computing & Web Architecture • Node.js, React, SQLite, Cloudflare Ready</p>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastMsg">Đã sao chép vào bộ nhớ tạm!</div>
+
+  <script>
+    // Copy Helper
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Đã sao chép: "' + text + '"');
+      }).catch(() => {
+        showToast('Đã chọn: ' + text);
+      });
+    }
+
+    function copyAccount(u, p) {
+      navigator.clipboard.writeText(`Tài khoản: ${u}\nMật khẩu: ${p}`).then(() => {
+        showToast(`Đã sao chép thông tin tài khoản (${u} / ${p})`);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Health Check Servers
+    async function checkFrontend() {
+      const dot = document.getElementById('dot-frontend');
+      const txt = document.getElementById('txt-frontend');
+      dot.className = 'pulse-dot checking';
+      txt.textContent = 'Đang kiểm tra...';
+
+      try {
+        // Test fetch to frontend port 3000
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        await fetch('http://localhost:3000/', { mode: 'no-cors', signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        dot.className = 'pulse-dot online';
+        txt.textContent = '🟢 Đang hoạt động (Sẵn sàng)';
+        txt.style.color = '#10b981';
+      } catch (e) {
+        dot.className = 'pulse-dot offline';
+        txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev)';
+        txt.style.color = '#ef4444';
+      }
+    }
+
+    async function checkBackend() {
+      const dot = document.getElementById('dot-backend');
+      const txt = document.getElementById('txt-backend');
+      dot.className = 'pulse-dot checking';
+      txt.textContent = 'Đang kiểm tra...';
+
+      const startTime = performance.now();
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const res = await fetch('http://localhost:5000/api/rooms', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        const latency = Math.round(performance.now() - startTime);
+        if (res.ok) {
+          dot.className = 'pulse-dot online';
+          txt.textContent = `🟢 Đang hoạt động (${latency}ms)`;
+          txt.style.color = '#10b981';
+        } else {
+          dot.className = 'pulse-dot online';
+          txt.textContent = `🟢 Đang chạy (HTTP ${res.status})`;
+          txt.style.color = '#10b981';
+        }
+      } catch (e) {
+        dot.className = 'pulse-dot offline';
+        txt.textContent = '🔴 Chưa khởi chạy (Chạy: npm run dev)';
+        txt.style.color = '#ef4444';
+      }
+    }
+
+    function checkAllServers() {
+      checkFrontend();
+      checkBackend();
+    }
+
+    // Run health check on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAllServers();
+      // Periodically check every 10 seconds
+      setInterval(checkAllServers, 10000);
+    });
+  </script>
+</body>
+</html>
