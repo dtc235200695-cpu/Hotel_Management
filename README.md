@@ -85,16 +85,31 @@ Hệ thống quản lý khách sạn và cổng đặt phòng nghỉ dưỡng 5 
 - **npm**: Đi kèm Node.js.
 
 ### 2. Khởi chạy dự án
+
+#### 👉 Cách 1: Khởi động 1-Click (Khuyên dùng trên Windows)
+Nhấp đúp chuột vào tệp [**`KhoiDong.bat`**](./KhoiDong.bat). Hệ thống sẽ tự động khởi chạy Backend, Frontend và mở ngay trình duyệt web!
+
+#### 👉 Cách 2: Khởi chạy bằng dòng lệnh
 Ứng dụng được thiết lập chạy đồng thời cả Backend API và Frontend Client chỉ với một lệnh duy nhất:
 
 ```bash
-# Khởi chạy đồng thời Backend (port 5000) và Frontend (port 3000)
+# Khởi chạy đồng thời Backend (port 5001) và Frontend (port 3001)
 npm run dev
 ```
 
 Sau khi chạy lệnh:
-- **Trang web đặt phòng / Hệ thống PMS:** Mở trình duyệt truy cập: `http://localhost:3000/`
-- **Backend API Server:** Hoạt động tại: `http://localhost:5000/`
+- **Trang web đặt phòng / Hệ thống PMS:** Mở trình duyệt truy cập: `http://localhost:3001/`
+- **Backend API Server:** Hoạt động tại: `http://localhost:5001/`
+- **Truy cập từ điện thoại di động (chung mạng WiFi):** Mở theo địa chỉ IP máy tính (VD: `http://<IP_MÁY_TÍNH>:3001/`)
+- **Cổng điều hướng trực quan:** Nhấp đúp vào tệp [**`TruyCapHeThong.html`**](./TruyCapHeThong.html) hoặc [**`index.html`**](./index.html) để kiểm tra kết nối thời gian thực và xem danh sách tài khoản mẫu.
+
+---
+
+### 3. Tối Ưu Hóa Giao Diện Điện Thoại Di Động (Mobile-First)
+- **Menu Hamburger cảm ứng:** Tích hợp thanh Drawer trượt thông minh cho cả Website đặt phòng và PMS quản trị.
+- **Trợ lý ảo AI Concierge toàn màn hình:** Tự động chuyển đổi sang giao diện Native App toàn màn hình khi mở trên điện thoại, bàn phím ảo không che khuất tin nhắn.
+- **Form đặt phòng Bottom-Sheet:** Các modal đặt phòng, tra cứu booking và xuất hóa đơn trượt từ đáy màn hình chuẩn UX di động.
+- **Chống Auto-Zoom trên iOS:** Tối ưu hóa kích thước phông chữ và viewport chuẩn cho Safari và Chrome trên điện thoại.
 
 ---
 
